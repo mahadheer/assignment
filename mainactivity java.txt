@@ -1,0 +1,110 @@
+package com.example.android.assignment;
+
+import android.support.v7.app.AppCompatActivity;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ProgressBar;
+import android.widget.TextView;
+
+import java.util.ArrayList;
+
+import cn.pedant.SweetAlert.SweetAlertDialog;
+
+public class MainActivity extends AppCompatActivity {
+
+    TextView questionCountLabel, questionLabel, scoreLabel;
+    EditText answer;
+    Button submit;
+    ArrayList<questions> questionsArrayList;
+
+    int position = 0;
+    int noOfCorrectAnswer = 0;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        questionCountLabel = findViewById(R.id.questionNo);
+        questionLabel = findViewById(R.id.question);
+        scoreLabel = findViewById(R.id.score);
+
+        answer = findViewById(R.id.answer);
+        submit = findViewById(R.id.submit);
+        questionsArrayList = new ArrayList<>();
+        setUpQuestion();
+        setData();
+
+        submit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                checkAnswer();
+
+            }
+        });
+    }
+
+    public void checkAnswer() {
+
+        String answerString = answer.getText().toString().trim();
+
+        if (answerString.equalsIgnoreCase(questionsArrayList.get(position).getAnswer())) {
+
+            noOfCorrectAnswer++;
+
+            new SweetAlertDialog(MainActivity.this, SweetAlertDialog.SUCCESS_TYPE)
+                    .setTitleText("NICE")
+                    .setContentText("CorrectAnswer")
+                    .setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener() {
+                        @Override
+                        public void onClick(SweetAlertDialog sweetAlertDialog) {
+
+                            position++;
+                            setData();
+                            answer.setText("");
+                            sweetAlertDialog.dismiss();
+
+                        }
+                    })
+                    .show();
+
+        } else {
+
+            new SweetAlertDialog(MainActivity.this, SweetAlertDialog.ERROR_TYPE)
+                    .setTitleText("WrongAnswer")
+                    .setContentText("The Right Answer is : " + questionsArrayList.get(position).getAnswer())
+                    .setConfirmText("ok")
+                    .setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener() {
+                        @Override
+                        public void onClick(SweetAlertDialog sDialog) {
+                            sDialog.dismiss();
+                            position++;
+                            setData();
+                            answer.setText("");
+                        }
+                    })
+                    .show();
+        }
+
+    }
+
+
+    public void setUpQuestion() {
+
+        questionsArrayList.add(new questions("What is ADB ?", "Android Debug Bridge"));
+        questionsArrayList.add(new questions("5 * 10", "50"));
+        questionsArrayList.add(new questions("9 + 10", "19"));
+        questionsArrayList.add(new questions("19 - 9", "10"));
+    }
+
+    public void setData() {
+
+            questionLabel.setText(questionsArrayList.get(position).getQuestionString());
+            questionCountLabel.setText("Question No : " + position);
+            scoreLabel.setText("score : " + noOfCorrectAnswer + "/" + 4);
+
+    }
+}
